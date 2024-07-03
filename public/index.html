@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagination Example</title>
+    <style>
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="dinnerOrders"></div>
+    <div class="pagination" id="pagination"></div>
+
+    <script>
+        async function fetchDinnerOrders(page = 1) {
+            const res = await fetch(`/dinnerorders?page=${page}&limit=5`);
+            const data = await res.json();
+
+            const dinnerOrdersDiv = document.getElementById('dinnerOrders');
+            dinnerOrdersDiv.innerHTML = data.dinnerOrders.map(order => `
+                <div>
+                    <p>Table: ${order.table}</p>
+                    <p>Food Order: ${order.foodorder}</p>
+                    <p>Cooking Time: ${order.foodcookingtime} minutes</p>
+                    <p>Drinks: ${order.drinks}</p>
+                </div>
+                <hr>
+            `).join('');
+
+            const paginationDiv = document.getElementById('pagination');
+            paginationDiv.innerHTML = `
+                <button ${data.currentPage == 1 ? 'disabled' : ''} onclick="fetchDinnerOrders(${data.currentPage - 1})">Previous</button>
+                <span>Page ${data.currentPage} of ${data.totalPages}</span>
+                <button ${data.currentPage == data.totalPages ? 'disabled' : ''} onclick="fetchDinnerOrders(${data.currentPage + 1})">Next</button>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchDinnerOrders();
+        });
+    </script>
+</body>
+</html>
